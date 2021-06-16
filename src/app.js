@@ -64,14 +64,101 @@ const galleryItems = [
   },
 ];
 
-const galleryUl = document.querySelector("#gallery");
-const galleryEls = galleryItems.map((el) => {
+const galleryUl = document.querySelector(".gallery");
+const lightBoxDiv = document.querySelector(".lightbox");
+const lightBoxImg = document.querySelector(".lightbox__image");
+const btnCloseModal = document.querySelector('[data-action="close-lightbox"]');
+const overlayDiv = document.querySelector('.lightbox__overlay');
+let currentIndex = 0;
+const galleryTag = galleryItems.map(({preview, original, description}, idx) => {
   return `<li class="gallery__item">
   <a
     class="gallery__link"
-    //href="https://cdn.pixabay.com/photo/2010/12/13/10/13/tulips-2546_1280.jpg"
+    href="${original}"
   >
-  <img src="${el.url}" alt="${el.alt}"></li>`;
+    <img
+      class="gallery__image"
+      src="${preview}"
+      data-source="${original}"
+      data-index="${idx}"
+      alt="${description}"
+    />
+  </a>
+</li>`;
 });
+galleryUl.insertAdjacentHTML("afterbegin", galleryTag.join(""));
 
-galleryUl.insertAdjacentHTML("afterbegin", galleryEls.join(""));
+galleryUl.addEventListener('click', onTagsContainerClick);
+btnCloseModal.addEventListener('click', onCloseModal);
+overlayDiv.addEventListener('click', onCloseModal);
+
+function onTagsContainerClick(evt) {
+  evt.preventDefault();
+
+  if (evt.target.nodeName !== 'IMG') {
+    return
+  }
+  
+  const selectedImgEl = evt.target;
+  const urlImgOriginal = selectedImgEl.dataset.source;
+  const descriptionImg = selectedImgEl.getAttribute('alt');
+  currentIndex = Number(selectedImgEl.dataset.index);
+
+  lightBoxImgContent(urlImgOriginal, descriptionImg)
+  onToggleClass();
+
+  document.addEventListener('keydown', onEventKey)
+}
+
+function lightBoxImgContent(original, description) {
+  lightBoxImg.setAttribute('src', original);
+  lightBoxImg.setAttribute('alt', description);
+}
+
+function onCloseModal() {
+  onToggleClass();
+  document.removeEventListener('keydown', onEventKey);
+  lightBoxImg.setAttribute('src', '');
+  lightBoxImg.setAttribute('alt', '');
+}
+
+function onToggleClass() {
+  lightBoxDiv.classList.toggle('is-open');
+}
+
+function onEventKey(ev) {
+  if (ev.code === 'Escape') {
+    onCloseModal();
+  }
+  else if (ev.code === 'ArrowRight'){
+    onArrowRight()
+  }
+  else if (ev.code === 'ArrowLeft'){
+    onArrowLeft()
+  }
+}
+
+function onArrowRight() {
+  if (currentIndex + 1 > galleryItems.length - 1) {
+    currentIndex = 0;
+  }
+  else {
+    currentIndex += 1;
+  }
+  const galleryItem = galleryItems[currentIndex];
+  lightBoxImgContent(galleryItem.original, galleryItem.description);
+}
+
+function onArrowLeft() {
+  console.log('ArrowLeft')
+  if (currentIndex - 1 < 0) {
+    currentIndex = galleryItems.length - 1;
+  }
+  else {
+    currentIndex -= 1;
+  }
+  const galleryItem = galleryItems[currentIndex];
+  lightBoxImgContent(galleryItem.original, galleryItem.description);
+}
+
+
