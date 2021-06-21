@@ -110,7 +110,7 @@ function onTagsContainerClick(evt) {
   document.addEventListener('keydown', onEventKey)
 }
 
-function lightBoxImgContent(original, description) {
+function lightBoxImgContent(original = '', description = '') {
   lightBoxImg.setAttribute('src', original);
   lightBoxImg.setAttribute('alt', description);
 }
@@ -118,8 +118,7 @@ function lightBoxImgContent(original, description) {
 function onCloseModal() {
   onToggleClass();
   document.removeEventListener('keydown', onEventKey);
-  lightBoxImg.setAttribute('src', '');
-  lightBoxImg.setAttribute('alt', '');
+  lightBoxImgContent();
 }
 
 function onToggleClass() {
